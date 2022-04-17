@@ -1,3 +1,4 @@
+from environs import Env
 from aiogram import executor
 from handlers import dp
 

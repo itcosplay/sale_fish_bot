@@ -3,8 +3,6 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.types import KeyboardButton
 from aiogram.types import InlineKeyboardButton
 
-from moltin_api import get_products
-
 
 def create_default_keyboard():
     keyboard = ReplyKeyboardMarkup()
@@ -17,8 +15,7 @@ def create_default_keyboard():
     return keyboard
 
 
-def create_product_keyboard(moltin_token):
-    products = get_products(moltin_token)
+def create_product_keyboard(products):
     keyboard = InlineKeyboardMarkup()
     
     for product in products:
