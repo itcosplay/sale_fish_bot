@@ -1,3 +1,4 @@
+import os
 import requests
 import pprint
 
@@ -16,17 +17,32 @@ def get_access_token(client_id, client_secret):
     response = requests.post(url, data=data)
     response.raise_for_status()
 
-    return response.json()
+    token_data = response.json()
+
+    os.environ.setdefault('MOLTIN_TOKEN', token_data['access_token'])
+    os.environ.setdefault('MOLTIN_TOKEN_EXPIRES', str(token_data['expires']))
+
+    return token_data['access_token']
 
 
-def check_token(token, client_id, client_secret):
-    if token['expires'] <= datetime.timestamp(datetime.now()):
+def get_actual_token(client_id, client_secret):
+    try:
+        if os.environ['MOLTIN_TOKEN']:
+            token = os.environ['MOLTIN_TOKEN']
+
+    except KeyError:
+        return get_access_token(client_id, client_secret)
+
+    token_expires = os.environ['MOLTIN_TOKEN_EXPIRES']
+
+    if float(token_expires) <= datetime.timestamp(datetime.now()):
 
         return get_access_token(client_id, client_secret)
 
     else:
 
         return token
+
 
 def get_products(access_token):
     url = 'https://api.moltin.com/v2/products'
@@ -38,6 +54,30 @@ def get_products(access_token):
     response.raise_for_status()
 
     return response.json()['data']
+
+
+def get_product(access_token, product_id):
+    url = f'https://api.moltin.com/v2/products/{product_id}'
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    return response.json()
+
+
+def get_product_img_url(access_token, img_id):
+    url = f'https://api.moltin.com/v2/files/{img_id}'
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    return response.json()['data']['link']['href']
 
 
 if __name__ == '__main__':
