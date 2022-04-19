@@ -1,3 +1,4 @@
+from email import message
 import pprint
 
 from environs import Env
@@ -9,6 +10,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from moltin_api import get_actual_token
 from moltin_api import get_products
 from moltin_api import get_product
+from moltin_api import get_product_img_url
 
 from loader import dp
 
@@ -17,7 +19,7 @@ from user_state import UserState
 from keyboards import create_default_keyboard
 from keyboards import create_product_keyboard
 
-from handle_data_lib import create_product_description_text
+from handle_data_lib import create_caption_text
 
 
 env = Env()
@@ -33,10 +35,7 @@ async def start(message: types.Message):
 
 @dp.message_handler(text='Ассортимент')
 async def show_products(message:types.Message,  state:FSMContext):
-    moltin_token = get_actual_token(
-        env.str('CLIENT_ID'),
-        env.str('CLIENT_SECRET')
-    )
+    moltin_token = get_actual_token()
     print('ACTUAL TOKEN: ', moltin_token)
     products = get_products(moltin_token)
     
@@ -61,16 +60,33 @@ async def show_selected_product(
         await state.finish()
 
     else:
-        moltin_token = get_actual_token(
-            env.str('CLIENT_ID'),
-            env.str('CLIENT_SECRET')
-        )
+        moltin_token = get_actual_token()
         product_id = call.data
         product_data = get_product(moltin_token, product_id)['data']
+
+        product_name = product_data['name']
+        product_description = product_data['description']
+        product_price = product_data[
+            'meta']['display_price']['with_tax']['formatted']
         
-        await call.message.answer(
-            text=create_product_description_text(product_data),
-            # reply_markup=create_default_keyboard()
-        )
+        caption = f'{product_name}'
+        caption += f'\n\n{product_description}'
+        caption += f'\n\n{product_price}'
+
+        img_data = product_data['relationships'].get('main_image')['data']
+
+        if img_data:
+            product_img_id = img_data['id']
+
+        else:
+            product_img_id = None
+
+        if product_img_id:
+            product_img_url = get_product_img_url(moltin_token, product_img_id)
+
+            await call.message.answer_photo(product_img_url, caption)
+
+        else:
+            await call.message.answer(text=caption)
 
         await state.finish()

@@ -25,7 +25,10 @@ def get_access_token(client_id, client_secret):
     return token_data['access_token']
 
 
-def get_actual_token(client_id, client_secret):
+def get_actual_token():
+    client_id = os.environ['CLIENT_ID']
+    client_secret = os.environ['CLIENT_SECRET']
+
     try:
         if os.environ['MOLTIN_TOKEN']:
             token = os.environ['MOLTIN_TOKEN']
