@@ -1,12 +1,13 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
+
 import pprint
+
 from moltin_api import get_actual_token
 from moltin_api import get_products
 from moltin_api import get_product
 from moltin_api import get_product_img_url
-from moltin_api import get_or_create_cart
 from moltin_api import add_to_cart
 
 from loader import dp
@@ -21,15 +22,16 @@ from keyboards import create_product_description_keyboard
 @dp.message_handler(CommandStart())
 async def start(message: types.Message):
     await message.answer(
-        text='Здравствуйте! Используйте кнопку меню «Ассортимент»',
-        reply_markup=create_default_keyboard()
-    )
+        'Здравствуйте! Используйте кнопку меню «Ассортимент»',
+        reply_markup=create_default_keyboard())
 
 
 @dp.message_handler(text='Ассортимент')
 async def show_products(message:types.Message,  state:FSMContext):
     moltin_token = get_actual_token()
+    user_id = message.from_user.id
     print('ACTUAL TOKEN: ', moltin_token)
+    print('user_id: ', user_id)
     products = get_products(moltin_token)
     
     await message.answer(
@@ -52,6 +54,9 @@ async def show_selected_product(
             reply_markup=create_default_keyboard()
         )
         await state.finish()
+    
+    elif call.data == 'cart':
+        pass
 
     else:
         moltin_token = get_actual_token()

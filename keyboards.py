@@ -7,7 +7,7 @@ from aiogram.types import InlineKeyboardButton
 def create_default_keyboard():
     keyboard = ReplyKeyboardMarkup()
 
-    keyboard.add(KeyboardButton(text='Ассортимент'))
+    keyboard.add(KeyboardButton('Ассортимент'))
 
     keyboard.resize_keyboard = True
     keyboard.one_time_keyboard = True
@@ -17,21 +17,17 @@ def create_default_keyboard():
 
 def create_product_keyboard(products):
     keyboard = InlineKeyboardMarkup()
-    
+
     for product in products:
         keyboard.add(
-            InlineKeyboardButton (
-                text=product['name'].lower(),
-                callback_data=product['id']
-            )
-        )
+            InlineKeyboardButton(product['name'].lower(),
+                                 callback_data=product['id']))
 
     keyboard.add(
-        InlineKeyboardButton (
-            text='отмена',
-            callback_data='cancel'
-        )
-    )
+        InlineKeyboardButton('корзина', callback_data='cart'))
+
+    keyboard.add(
+        InlineKeyboardButton('отмена', callback_data='cancel'))
 
     return keyboard
 
