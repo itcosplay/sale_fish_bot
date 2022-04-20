@@ -1,26 +1,39 @@
 from moltin_api import get_actual_token
 from moltin_api import get_product_img_url
+from moltin_api import get_stock_data
 
 
-def create_caption_text(product_data):
-    product_name = product_data['name']
-    product_description = product_data['description']
-    product_price = product_data[
+def fetch_caption(product_data):
+    moltin_token = get_actual_token()
+
+    name = product_data['name']
+    description = product_data['description']
+    price_usd = product_data[
         'meta']['display_price']['with_tax']['formatted']
-    
-    caption = f'{product_name}'
-    caption += f'\n\n{product_description}'
-    caption += f'\n\n{product_price}'
-    # img_data = product_data['relationships'].get('main_image')['data']
+    price_amount = product_data[
+        'meta']['display_price']['with_tax']['amount']
+    price_for_10kg = format(int(price_amount) / 100 * 10, '.2f')
+    available = get_stock_data(moltin_token, product_data['id'])['available']
 
-    # if img_data:
-    #     product_img_id = img_data['id']
+    caption = f'{name}'
+    caption += f'\n\n{price_usd} per kg'
+    caption += f'\n{available} kg on stock'
+    caption += f'\n\n{description}'
+    caption += f'\n\n10 kg in cart for ${price_for_10kg}'
 
-    # else:
-    #     product_img_id = None
+    return caption
 
-    # if product_img_id:
-    #     token = get_actual_token()
-    #     product_img_url = get_product_img_url(token, product_img_id)
 
-    return product_img_url
+def fetch_img_url(product_data):
+    img_data = product_data['relationships'].get('main_image')['data']
+
+    if img_data:
+        img_id = img_data['id']
+
+    else:
+        return
+
+    if img_id:
+        moltin_token = get_actual_token()
+
+        return get_product_img_url(moltin_token, img_id)

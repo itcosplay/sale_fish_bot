@@ -4,7 +4,7 @@ import requests
 
 from datetime import datetime
 from environs import Env
-
+from pprint import pprint
 
 def get_access_token(client_id, client_secret):
     url = 'https://api.moltin.com/oauth/access_token'
@@ -55,10 +55,8 @@ def get_products(access_token):
 
     return response.json()['data']
 
-
-def get_product(access_token, product_id):
-    url = f'https://api.moltin.com/v2/products/{product_id}'
-
+def get_stock_data(access_token, product_id):
+    url = f'https://api.moltin.com/v2/inventories/{product_id}'
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
@@ -66,11 +64,25 @@ def get_product(access_token, product_id):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
-    return response.json()
+    return response.json()['data']
+
+
+def get_product(access_token, product_id):
+    url = f'https://api.moltin.com/v2/products/{product_id}'
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    pprint(response.json())
+    return response.json()['data']
 
 
 def get_product_img_url(access_token, img_id):
     url = f'https://api.moltin.com/v2/files/{img_id}'
+
     headers = {
         'Authorization': f'Bearer {access_token}'
     }
@@ -83,6 +95,7 @@ def get_product_img_url(access_token, img_id):
 
 def get_or_create_cart(access_token, cart_id, currency='USD'):
     url = f'https://api.moltin.com/v2/carts/{cart_id}'
+
     headers = {
         'Authorization': f'Bearer {access_token}',
         'X-MOLTIN-CURRENCY': currency
@@ -97,6 +110,7 @@ def get_or_create_cart(access_token, cart_id, currency='USD'):
 def add_to_cart(access_token, cart_id, item_id, item_quantity,
                 currency='USD'):
     url = f'https://api.moltin.com/v2/carts/{cart_id}/items'
+
     headers = {
         'Authorization': f'Bearer {access_token}',
         'X-MOLTIN-CURRENCY': currency
@@ -211,7 +225,6 @@ if __name__ == '__main__':
 
     pprint(data)
     
-
 
     #####    
 

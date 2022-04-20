@@ -1,22 +1,23 @@
+from pprint import pprint
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
-
-import pprint
-
-from moltin_api import get_actual_token
-from moltin_api import get_products
-from moltin_api import get_product
-from moltin_api import get_product_img_url
-from moltin_api import add_to_cart
 
 from loader import dp
 
 from user_state import UserState
 
 from keyboards import create_default_keyboard
-from keyboards import create_product_keyboard
+from keyboards import create_menu_keyboard
 from keyboards import create_product_description_keyboard
+
+from handle_data_lib import fetch_caption
+from handle_data_lib import fetch_img_url
+
+from moltin_api import get_actual_token
+from moltin_api import get_products
+from moltin_api import get_product
+from moltin_api import add_to_cart
 
 
 @dp.message_handler(CommandStart())
@@ -27,79 +28,51 @@ async def start(message: types.Message):
 
 
 @dp.message_handler(text='Ассортимент')
-async def show_products(message:types.Message,  state:FSMContext):
+async def show_products(message:types.Message):
     moltin_token = get_actual_token()
-    user_id = message.from_user.id
-    print('ACTUAL TOKEN: ', moltin_token)
-    print('user_id: ', user_id)
     products = get_products(moltin_token)
-    
-    await message.answer(
-        text='Пожалуйста, выберите товар:',
-        reply_markup=create_product_keyboard(products)
-    )
-    
-    await state.update_data(cart=[])
-    await UserState.selectig_product.set()
+
+    await message.answer('Выберите товар:',
+                         reply_markup=create_menu_keyboard(products))
+
+    await UserState.handle_menu.set()
 
 
-@dp.callback_query_handler(state=UserState.selectig_product)
-async def show_selected_product(
-    call:types.CallbackQuery,
-    state:FSMContext
-):
+@dp.callback_query_handler(state=UserState.handle_menu)
+async def show_selected_product(call:types.CallbackQuery,
+                                state:FSMContext):
     if call.data == 'cancel':
         await call.message.answer(
             text='Вернуться к выбору можно через кнопку «Ассортимент»',
-            reply_markup=create_default_keyboard()
-        )
+            reply_markup=create_default_keyboard())
         await state.finish()
-    
+
     elif call.data == 'cart':
-        pass
+        await call.message.answer(
+            text='Тут будет корзина... Стейт сброшен.',
+            reply_markup=create_default_keyboard())
 
     else:
         moltin_token = get_actual_token()
         product_id = call.data
+        product_data = get_product(moltin_token, product_id)
+        pprint(product_data)
+        caption = fetch_caption(product_data)
+        img_url = fetch_img_url(product_data)
+        reply_markup=create_product_description_keyboard()
 
-        await state.update_data(selectig_product=product_id)
-
-        product_data = get_product(moltin_token, product_id)['data']
-
-        product_name = product_data['name']
-        product_description = product_data['description']
-        product_price = product_data[
-            'meta']['display_price']['with_tax']['formatted']
-
-        caption = f'{product_name}'
-        caption += f'\n\n{product_description}'
-        caption += f'\n\n{product_price}'
-
-        img_data = product_data['relationships'].get('main_image')['data']
-
-        if img_data:
-            product_img_id = img_data['id']
-
-        else:
-            product_img_id = None
-
-        if product_img_id:
+        if img_url:
             await call.message.answer_photo(
-                photo=get_product_img_url(moltin_token, product_img_id),
-                caption=caption,
-                reply_markup=create_product_description_keyboard()
-            )
+                photo=img_url, caption=caption, reply_markup=reply_markup)
 
         else:
             await call.message.answer(
-                text=caption,
-                reply_markup=create_product_description_keyboard()
-            )
+                caption, reply_markup=reply_markup)
 
-        await UserState.adding_cart.set()
+        await UserState.handle_description.set()
 
 
-@dp.callback_query_handler(state=UserState.adding_cart)
+@dp.callback_query_handler(state=UserState.handle_description)
 async def handle_add_to_cart(
     call:types.CallbackQuery,
     state:FSMContext

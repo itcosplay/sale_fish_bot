@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters.state import StatesGroup
 
 
 class UserState(StatesGroup):
-    selectig_product = State()
-    adding_cart = State()
-    cart = State()
-    
+    handle_menu = State() 
+    handle_description = State() 
+    handle_cart = State() 
+    handle_email = State()

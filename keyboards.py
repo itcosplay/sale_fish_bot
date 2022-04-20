@@ -15,7 +15,7 @@ def create_default_keyboard():
     return keyboard
 
 
-def create_product_keyboard(products):
+def create_menu_keyboard(products):
     keyboard = InlineKeyboardMarkup()
 
     for product in products:
@@ -35,19 +35,20 @@ def create_product_keyboard(products):
 def create_product_description_keyboard():
     keyboard = InlineKeyboardMarkup()
 
-    keyboard.add(
-        InlineKeyboardButton(
-            text='добавить в корзину',
-            callback_data='add_to_cart'
-        )
-    )
+    keyboard.insert(
+        InlineKeyboardButton('5', callback_data='five_kg'))
+
+    keyboard.insert(
+        InlineKeyboardButton('10', callback_data='ten_kg'))
+    
+    keyboard.insert(
+        InlineKeyboardButton('15', callback_data='fifteen_kg'))
 
     keyboard.add(
-        InlineKeyboardButton(
-            text='назад',
-            callback_data='back'
-        )
-    )
+        InlineKeyboardButton('корзина', callback_data='cart'))
+
+    keyboard.add(
+        InlineKeyboardButton('в меню', callback_data='to_menu'))
 
     return keyboard
 
