@@ -84,7 +84,7 @@ async def handle_add_to_cart(
     
         await call.message.answer(
             text='Пожалуйста, выберите товар:',
-            reply_markup=create_product_keyboard(products)
+            reply_markup=create_menu_keyboard(products)
         )
 
         await UserState.selectig_product.set()
