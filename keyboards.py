@@ -53,20 +53,27 @@ def create_product_description_keyboard():
     return keyboard
 
 
-def create_cart_keyboard(cart_data):
+def create_cart_keyboard(cart_items_data):
     keyboard = InlineKeyboardMarkup()
+
+    for item in cart_items_data['data']:
+        item_name = item['name']
+
+        keyboard.add(
+            InlineKeyboardButton(f'удалить {item_name}',
+                                 callback_data=item['id']))
 
     keyboard.add(
         InlineKeyboardButton(
-            text='корзина',
-            callback_data='show_cart'
+            text='в меню',
+            callback_data='to_menu'
         )
     )
 
     keyboard.add(
         InlineKeyboardButton(
-            text='выбрать еще товар',
-            callback_data='another_product'
+            text='оплата',
+            callback_data='payment'
         )
     )
 

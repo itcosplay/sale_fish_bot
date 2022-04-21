@@ -10,9 +10,11 @@ from user_state import UserState
 from keyboards import create_initial_keyboard
 from keyboards import create_menu_keyboard
 from keyboards import create_product_description_keyboard
+from keyboards import create_cart_keyboard
 
 from handle_data_lib import fetch_caption
 from handle_data_lib import fetch_img_url
+from handle_data_lib import fetch_cart_description
 
 from moltin_api import get_actual_token
 from moltin_api import get_products
@@ -54,12 +56,18 @@ async def handle_menu(call: types.CallbackQuery,
     elif call.data == 'cart':
         cart_id = call.message.from_user.id
         cart_items_data = get_cart_items(moltin_token, cart_id)
+        # pprint(cart_items_data)
+        # phone id: 1607547372
+        print(call.message.from_user.id)
+        if len(cart_items_data['data']) == 0:
+            await call.message.answer('Ваша пуста...', reply_markup=create_initial_keyboard())
 
-        pprint(cart_items_data)
+            await state.finish()
+
+        cart_text = fetch_cart_description(cart_items_data)
 
         await call.message.answer(
-            'Тут будет корзина... Стейт сброшен.',
-            reply_markup=create_initial_keyboard())
+            cart_text, reply_markup=create_cart_keyboard(cart_items_data))
 
         await state.finish()
 

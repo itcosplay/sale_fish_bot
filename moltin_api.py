@@ -130,6 +130,18 @@ def add_to_cart(access_token, cart_id, item_id, item_quantity,
     return response.json()
 
 
+def remove_cart_item(access_token, cart_id, item_id):
+    url = f'https://api.moltin.com/v2/carts/{cart_id}/items/{item_id}'
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    response = requests.delete(url, headers=headers)
+    response.raise_for_status()
+
+    return response.ok
+
+
 def get_cart_items(access_token, cart_id):
     url = f'https://api.moltin.com/v2/carts/{cart_id}/items'
     headers = {
@@ -204,14 +216,17 @@ if __name__ == '__main__':
     #     'ctazZvYvkivqq0SBiKLnoxrvPHQfqE7uTEz1wVafYW',
     #     '8ZiMoV9j6iXnnTZvtxZNKpXRPCO10LiYZoQQ1A0pNG')
 
-    token = ''
+    token = '2bf9ab6f88723770bd42b93e51a5610f8ba555d1'
 
-    data = get_or_create_cart(token, 59677456)
+    # data = remove_cart_item(token, 59677456, '1f98c92e-4b07-4bc6-b841-0c39da30855c')
+    # data = remove_cart_item(token, 59677456, 'fbe168c5-690c-4528-b9f1-d7431b4a8a4c')
+
+    # data = get_or_create_cart(token, 59677456)
 
     # data = add_to_cart(token,
     #                    59677456, 'f6123dbb-3f8a-430d-a962-000f7258f321', 1)
 
-    # data = get_cart_items(token, 59677456)
+    data = get_cart_items(token, 59677456)
 
     # data = create_customer(token, 'abs@mail.ru', 'KOSPLAY')
 
@@ -221,9 +236,8 @@ if __name__ == '__main__':
     #     token, 59677456, '345e4775-567c-4f1b-9d0b-67019146f9b1')
 
     pprint(data)
-    
 
-    #####    
+    #####
 
     #  'relationships': {'items': {'data': None}},
 

@@ -43,14 +43,22 @@ def fetch_cart_description(cart_items_data):
     text = ''
 
     for item in cart_items_data['data']:
+        if text != '': text += '\n\n' 
+
         product_name = item['name']
-        price_formatted = item['meta']['display_price']['with_tax']['unit']['formatted']
+        price_formatted = item['meta']['display_price']['with_tax']['unit'][
+            'formatted']
         price_integer = int(
             item['meta']['display_price']['with_tax']['unit']['amount']) / 100
         quantity = item['quantity']
         position_price = format(int(quantity) * price_integer, '.2f')
 
-        text += f'**{product_name}**'
+        text += f'<b>{product_name}</b>'
         text += f'\n{price_formatted} per kg'
-        text += f'\n'
-    pass
+        text += f'\n{quantity} kg in the cart for ${position_price}'
+
+    cart_price = cart_items_data['meta']['display_price']['with_tax'][
+        'formatted']
+
+    text += f'\n\n\n<b>Total: {cart_price}</b>'
+    return text
