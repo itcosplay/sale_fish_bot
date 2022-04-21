@@ -37,3 +37,20 @@ def fetch_img_url(product_data):
         moltin_token = get_actual_token()
 
         return get_product_img_url(moltin_token, img_id)
+
+
+def fetch_cart_description(cart_items_data):
+    text = ''
+
+    for item in cart_items_data['data']:
+        product_name = item['name']
+        price_formatted = item['meta']['display_price']['with_tax']['unit']['formatted']
+        price_integer = int(
+            item['meta']['display_price']['with_tax']['unit']['amount']) / 100
+        quantity = item['quantity']
+        position_price = format(int(quantity) * price_integer, '.2f')
+
+        text += f'**{product_name}**'
+        text += f'\n{price_formatted} per kg'
+        text += f'\n'
+    pass

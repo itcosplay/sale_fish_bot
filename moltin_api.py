@@ -6,6 +6,7 @@ from datetime import datetime
 from environs import Env
 from pprint import pprint
 
+
 def get_access_token(client_id, client_secret):
     url = 'https://api.moltin.com/oauth/access_token'
     data = {
@@ -55,6 +56,7 @@ def get_products(access_token):
 
     return response.json()['data']
 
+
 def get_stock_data(access_token, product_id):
     url = f'https://api.moltin.com/v2/inventories/{product_id}'
     headers = {
@@ -76,7 +78,7 @@ def get_product(access_token, product_id):
     
     response = requests.get(url, headers=headers)
     response.raise_for_status()
-    pprint(response.json())
+
     return response.json()['data']
 
 
@@ -110,12 +112,10 @@ def get_or_create_cart(access_token, cart_id, currency='USD'):
 def add_to_cart(access_token, cart_id, item_id, item_quantity,
                 currency='USD'):
     url = f'https://api.moltin.com/v2/carts/{cart_id}/items'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
         'X-MOLTIN-CURRENCY': currency
     }
-
     cart_item = {
         'data': {
             'id': item_id,
@@ -132,7 +132,6 @@ def add_to_cart(access_token, cart_id, item_id, item_quantity,
 
 def get_cart_items(access_token, cart_id):
     url = f'https://api.moltin.com/v2/carts/{cart_id}/items'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
@@ -145,11 +144,9 @@ def get_cart_items(access_token, cart_id):
 
 def create_customer(access_token, email, name=None):
     url = 'https://api.moltin.com/v2/customers'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
-
     customer = {
         'data': {
             'type': 'customer',

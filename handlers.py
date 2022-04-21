@@ -7,7 +7,7 @@ from loader import dp
 
 from user_state import UserState
 
-from keyboards import create_default_keyboard
+from keyboards import create_initial_keyboard
 from keyboards import create_menu_keyboard
 from keyboards import create_product_description_keyboard
 
@@ -18,17 +18,18 @@ from moltin_api import get_actual_token
 from moltin_api import get_products
 from moltin_api import get_product
 from moltin_api import add_to_cart
+from moltin_api import get_cart_items
 
 
 @dp.message_handler(CommandStart())
 async def start(message: types.Message):
     await message.answer(
         'Здравствуйте! Используйте кнопку меню «Ассортимент»',
-        reply_markup=create_default_keyboard())
+        reply_markup=create_initial_keyboard())
 
 
 @dp.message_handler(text='Ассортимент')
-async def show_products(message:types.Message):
+async def show_menu(message: types.Message):
     moltin_token = get_actual_token()
     products = get_products(moltin_token)
 
@@ -39,27 +40,37 @@ async def show_products(message:types.Message):
 
 
 @dp.callback_query_handler(state=UserState.handle_menu)
-async def show_selected_product(call:types.CallbackQuery,
-                                state:FSMContext):
+async def handle_menu(call: types.CallbackQuery,
+                      state: FSMContext):
+    await call.answer()
+    moltin_token = get_actual_token()
+
     if call.data == 'cancel':
         await call.message.answer(
-            text='Вернуться к выбору можно через кнопку «Ассортимент»',
-            reply_markup=create_default_keyboard())
+            'Вернуться к выбору можно через кнопку «Ассортимент»',
+            reply_markup=create_initial_keyboard())
         await state.finish()
 
     elif call.data == 'cart':
+        cart_id = call.message.from_user.id
+        cart_items_data = get_cart_items(moltin_token, cart_id)
+
+        pprint(cart_items_data)
+
         await call.message.answer(
-            text='Тут будет корзина... Стейт сброшен.',
-            reply_markup=create_default_keyboard())
+            'Тут будет корзина... Стейт сброшен.',
+            reply_markup=create_initial_keyboard())
+
+        await state.finish()
 
     else:
-        moltin_token = get_actual_token()
         product_id = call.data
+        await state.update_data(selected_product_id=product_id)
         product_data = get_product(moltin_token, product_id)
-        pprint(product_data)
+
         caption = fetch_caption(product_data)
         img_url = fetch_img_url(product_data)
-        reply_markup=create_product_description_keyboard()
+        reply_markup = create_product_description_keyboard()
 
         if img_url:
             await call.message.answer_photo(
@@ -73,33 +84,41 @@ async def show_selected_product(call:types.CallbackQuery,
 
 
 @dp.callback_query_handler(state=UserState.handle_description)
-async def handle_add_to_cart(
-    call:types.CallbackQuery,
-    state:FSMContext
-):
-    if call.data == 'back':
-        moltin_token = get_actual_token()
-        print('ACTUAL TOKEN: ', moltin_token)
+async def handle_add_to_cart(call: types.CallbackQuery,
+                             state: FSMContext):
+    await call.answer()
+    cart_id = call.message.from_user.id
+    moltin_token = get_actual_token()
+
+    if call.data == 'to_menu':
         products = get_products(moltin_token)
-    
-        await call.message.answer(
-            text='Пожалуйста, выберите товар:',
-            reply_markup=create_menu_keyboard(products)
-        )
-
-        await UserState.selectig_product.set()
-
-    elif call.data == 'add_to_cart':
-        state_data = await state.get_data()
-        selected_product = state_data['selectig_product']
-        
-        moltin_token = get_actual_token()
-        cart_id = call.message.from_user.id
-        # cart = get_or_create_cart(moltin_token, cart_id)
-        added = add_to_cart(moltin_token, cart_id, selected_product, 1)
-        pprint.pprint(added)
 
         await call.message.answer(
-            text='Товар в корзине!',
-            # reply_markup=create_product_keyboard(products)
+            'Выберите товар:', reply_markup=create_menu_keyboard(products))
+
+        await UserState.handle_menu.set()
+
+    elif call.data == 'cart':
+        cart_data = get_or_create_cart(moltin_token, cart_id)
+
+        pprint(cart_data)
+
+        await call.message.answer(
+            'Тут будет корзина... Стейт сброшен.',
+            reply_markup=create_initial_keyboard())
+
+        await state.finish()
+
+    else:
+        product_id = await state.get_data('selected_product_id')
+        product_amount = int(call.data)
+
+        add_to_cart(moltin_token, cart_id, product_id['selected_product_id'],
+                    product_amount)
+
+        await call.message.answer(
+            text='Товар в корзине! State was reset',
+            reply_markup=create_initial_keyboard()
         )
+
+        await state.finish()
