@@ -43,7 +43,8 @@ def fetch_cart_description(cart_items_data):
     text = ''
 
     for item in cart_items_data['data']:
-        if text != '': text += '\n\n' 
+        if text != '':
+            text += '\n\n'
 
         product_name = item['name']
         price_formatted = item['meta']['display_price']['with_tax']['unit'][

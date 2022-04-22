@@ -1,10 +1,7 @@
 import os
-from pprint import pprint
 import requests
 
 from datetime import datetime
-from environs import Env
-from pprint import pprint
 
 
 def get_access_token(client_id, client_secret):
@@ -71,11 +68,10 @@ def get_stock_data(access_token, product_id):
 
 def get_product(access_token, product_id):
     url = f'https://api.moltin.com/v2/products/{product_id}'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
-    
+
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
@@ -84,7 +80,6 @@ def get_product(access_token, product_id):
 
 def get_product_img_url(access_token, img_id):
     url = f'https://api.moltin.com/v2/files/{img_id}'
-
     headers = {
         'Authorization': f'Bearer {access_token}'
     }
@@ -97,7 +92,6 @@ def get_product_img_url(access_token, img_id):
 
 def get_or_create_cart(access_token, cart_id, currency='USD'):
     url = f'https://api.moltin.com/v2/carts/{cart_id}'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
         'X-MOLTIN-CURRENCY': currency
@@ -175,7 +169,6 @@ def create_customer(access_token, email, name=None):
 
 def get_customer(access_token, customer_id):
     url = f'https://api.moltin.com/v2/customers/{customer_id}'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
@@ -188,11 +181,9 @@ def get_customer(access_token, customer_id):
 
 def add_customer_to_cart(access_token, cart_id, customer_id):
     url = f'https://api.moltin.com/v2/carts/{cart_id}/relationships/customers'
-
     headers = {
         'Authorization': f'Bearer {access_token}',
     }
-
     customer = {
         'data': [
             {
@@ -206,41 +197,3 @@ def add_customer_to_cart(access_token, cart_id, customer_id):
     response.raise_for_status()
 
     return response.json()
-
-
-if __name__ == '__main__':
-    env = Env()
-    env.read_env()
-
-    # data = get_access_token(
-    #     'ctazZvYvkivqq0SBiKLnoxrvPHQfqE7uTEz1wVafYW',
-    #     '8ZiMoV9j6iXnnTZvtxZNKpXRPCO10LiYZoQQ1A0pNG')
-
-    token = '2bf9ab6f88723770bd42b93e51a5610f8ba555d1'
-
-    # data = remove_cart_item(token, 59677456, '1f98c92e-4b07-4bc6-b841-0c39da30855c')
-    # data = remove_cart_item(token, 59677456, 'fbe168c5-690c-4528-b9f1-d7431b4a8a4c')
-
-    # data = get_or_create_cart(token, 59677456)
-
-    # data = add_to_cart(token,
-    #                    59677456, 'f6123dbb-3f8a-430d-a962-000f7258f321', 1)
-
-    data = get_cart_items(token, 59677456)
-
-    # data = create_customer(token, 'abs@mail.ru', 'KOSPLAY')
-
-    # data = get_customer(token, '345e4775-567c-4f1b-9d0b-67019146f9b1')
-
-    # data = add_customer_to_cart(
-    #     token, 59677456, '345e4775-567c-4f1b-9d0b-67019146f9b1')
-
-    pprint(data)
-
-    #####
-
-    #  'relationships': {'items': {'data': None}},
-
-    # 'relationships': {'customers': {},
-    #                   'items': {'data': [{'id': 'fbe168c5-690c-4528-b9f1-d7431b4a8a4c',
-    #                                             'type': 'cart_item'}]}},

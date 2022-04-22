@@ -40,7 +40,7 @@ def create_product_description_keyboard():
 
     keyboard.insert(
         InlineKeyboardButton('buy 10 kg', callback_data='10'))
-    
+
     keyboard.insert(
         InlineKeyboardButton('buy 15 kg', callback_data='15'))
 
@@ -63,18 +63,8 @@ def create_cart_keyboard(cart_items_data):
             InlineKeyboardButton(f'удалить {item_name}',
                                  callback_data=item['id']))
 
-    keyboard.add(
-        InlineKeyboardButton(
-            text='в меню',
-            callback_data='to_menu'
-        )
-    )
+    keyboard.add(InlineKeyboardButton('в меню', callback_data='to_menu'))
 
-    keyboard.add(
-        InlineKeyboardButton(
-            text='оплата',
-            callback_data='payment'
-        )
-    )
+    keyboard.add(InlineKeyboardButton('оплата', callback_data='payment'))
 
     return keyboard
