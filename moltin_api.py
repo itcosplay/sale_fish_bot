@@ -97,7 +97,7 @@ def get_or_create_cart(access_token, cart_id, currency='USD'):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
 
-    return response.json()
+    return response.status_code
 
 
 def add_to_cart(access_token, cart_id, item_id, item_quantity,
@@ -117,8 +117,6 @@ def add_to_cart(access_token, cart_id, item_id, item_quantity,
 
     response = requests.post(url, headers=headers, json=cart_item)
     response.raise_for_status()
-
-    return response.json()
 
 
 def remove_cart_item(access_token, cart_id, item_id):
@@ -159,9 +157,8 @@ def create_customer(access_token, email, name=None):
     }
 
     response = requests.post(url, headers=headers, json=customer)
-    response.raise_for_status()
 
-    return response.json()
+    return response.status_code
 
 
 def get_customer(access_token, customer_id):

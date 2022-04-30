@@ -208,10 +208,10 @@ async def handle_email(message: types.Message, state: FSMContext):
     moltin_token = get_actual_token()
 
     try:
-        create_customer(moltin_token, user_answer)
-    except HTTPError as e:
-        if e == '409 Client Error:' \
-                ' Conflict for url: https://api.moltin.com/v2/customers':
+        status_code = create_customer(moltin_token, user_answer)
+
+    except HTTPError:
+        if status_code == 409:
             pass
 
     await message.answer('Спасибо, с вами свяжется наш менеджер :)')
