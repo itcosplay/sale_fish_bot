@@ -26,11 +26,9 @@ def get_access_token(client_id, client_secret):
 def get_actual_token():
     client_id = os.environ['CLIENT_ID']
     client_secret = os.environ['CLIENT_SECRET']
+    token = os.getenv('MOLTIN_TOKEN')
 
-    try:
-        if os.environ['MOLTIN_TOKEN']:
-            token = os.environ['MOLTIN_TOKEN']
-    except KeyError:
+    if not token:
         return get_access_token(client_id, client_secret)
 
     token_expires = os.environ['MOLTIN_TOKEN_EXPIRES']
@@ -38,8 +36,7 @@ def get_actual_token():
     if float(token_expires) <= datetime.timestamp(datetime.now()):
         return get_access_token(client_id, client_secret)
 
-    else:
-        return token
+    return token
 
 
 def get_products(access_token):
