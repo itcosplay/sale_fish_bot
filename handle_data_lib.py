@@ -29,11 +29,6 @@ def fetch_img_url(product_data):
 
     if img_data:
         img_id = img_data['id']
-
-    else:
-        return
-
-    if img_id:
         moltin_token = get_actual_token()
 
         return get_product_img_url(moltin_token, img_id)
