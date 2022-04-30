@@ -56,12 +56,16 @@ def create_product_description_keyboard():
 def create_cart_keyboard(cart_items_data):
     keyboard = InlineKeyboardMarkup()
 
+    if len(cart_items_data['data']) == 0:
+        keyboard.add(InlineKeyboardButton('назад', callback_data='to_menu'))
+        return keyboard
+
     for item in cart_items_data['data']:
         item_name = item['name']
 
         keyboard.add(
-            InlineKeyboardButton(f'удалить {item_name}',
-                                 callback_data=item['id']))
+            InlineKeyboardButton(
+                f'удалить {item_name}', callback_data=item['id']))
 
     keyboard.add(InlineKeyboardButton('в меню', callback_data='to_menu'))
 

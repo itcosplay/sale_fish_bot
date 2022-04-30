@@ -61,22 +61,24 @@ async def show_menu(message: types.Message):
     moltin_token = get_actual_token()
     products = get_products(moltin_token)
 
-    await message.answer('Выберите товар:',
-                         reply_markup=create_menu_keyboard(products))
+    await message.answer(
+        'Выберите товар:', reply_markup=create_menu_keyboard(products))
 
     await UserState.handle_menu.set()
 
 
 @dp.callback_query_handler(state=UserState.handle_menu)
-async def handle_menu(call: types.CallbackQuery,
-                      state: FSMContext):
+async def handle_menu(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
+
     moltin_token = get_actual_token()
 
     if call.data == 'cancel':
+        await call.message.delete()
         await call.message.answer(
             'Вернуться к выбору можно через кнопку «Ассортимент»',
             reply_markup=create_initial_keyboard())
+
         await state.finish()
 
     elif call.data == 'cart':
@@ -84,18 +86,22 @@ async def handle_menu(call: types.CallbackQuery,
         cart_items_data = get_cart_items(moltin_token, cart_id)
 
         if len(cart_items_data['data']) == 0:
-            await call.message.answer(
-                'Ваша пуста...', reply_markup=create_initial_keyboard())
-            await state.finish()
+            await call.message.edit_text(
+                'Ваша пуста...',
+                reply_markup=create_cart_keyboard(cart_items_data))
+
+            await UserState.handle_cart.set()
             return
 
         cart_text = fetch_cart_description(cart_items_data)
 
-        await call.message.answer(
+        await call.message.edit_text(
             cart_text, reply_markup=create_cart_keyboard(cart_items_data))
+
         await UserState.handle_cart.set()
 
     else:
+        await call.message.delete()
         product_id = call.data
         await state.update_data(selected_product_id=product_id)
         product_data = get_product(moltin_token, product_id)
@@ -109,8 +115,7 @@ async def handle_menu(call: types.CallbackQuery,
                 photo=img_url, caption=caption, reply_markup=reply_markup)
 
         else:
-            await call.message.answer(
-                caption, reply_markup=reply_markup)
+            await call.message.answer(caption, reply_markup=reply_markup)
 
         await UserState.handle_description.set()
 
@@ -118,6 +123,7 @@ async def handle_menu(call: types.CallbackQuery,
 @dp.callback_query_handler(state=UserState.handle_description)
 async def handle_description(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
+    await call.message.delete()
     cart_id = call.message.from_user.id
     moltin_token = get_actual_token()
 
@@ -134,43 +140,51 @@ async def handle_description(call: types.CallbackQuery, state: FSMContext):
 
         if len(cart_items_data['data']) == 0:
             await call.message.answer(
-                'Ваша пуста...', reply_markup=create_initial_keyboard())
-            await state.finish()
+                'Ваша пуста...',
+                reply_markup=create_cart_keyboard(cart_items_data))
+
+            await UserState.handle_cart.set()
             return
 
         cart_text = fetch_cart_description(cart_items_data)
 
         await call.message.answer(
             cart_text, reply_markup=create_cart_keyboard(cart_items_data))
+
         await UserState.handle_cart.set()
 
     else:
         product_id = await state.get_data('selected_product_id')
         product_amount = int(call.data)
 
-        add_to_cart(moltin_token, cart_id, product_id['selected_product_id'],
-                    product_amount)
+        add_to_cart(
+            moltin_token, cart_id, product_id['selected_product_id'],
+            product_amount)
 
         products = get_products(moltin_token)
 
         await call.message.answer(
             'Товар в корзине! Хотите выбрать что нибудь еще?',
             reply_markup=create_menu_keyboard(products))
+
         await UserState.handle_menu.set()
 
 
 @dp.callback_query_handler(state=UserState.handle_cart)
 async def handle_cart(call: types.CallbackQuery, state: FSMContext):
     await call.answer()
+
     moltin_token = get_actual_token()
 
     if call.data == 'to_menu':
         products = get_products(moltin_token)
-        await call.message.answer('Выберите товар:',
-                                  reply_markup=create_menu_keyboard(products))
+        await call.message.edit_text(
+            'Выберите товар:', reply_markup=create_menu_keyboard(products))
+
         await UserState.handle_menu.set()
 
     elif call.data == 'payment':
+        await call.message.delete()
         await call.message.answer('введите ваш email')
         await UserState.handle_email.set()
 
@@ -181,15 +195,18 @@ async def handle_cart(call: types.CallbackQuery, state: FSMContext):
         cart_items_data = get_cart_items(moltin_token, cart_id)
 
         if len(cart_items_data['data']) == 0:
-            await call.message.answer('Ваша пуста...',
-                                      reply_markup=create_initial_keyboard())
-            await state.finish()
+            await call.message.edit_text(
+                'Ваша пуста...',
+                reply_markup=create_cart_keyboard(cart_items_data))
+
+            await UserState.handle_cart.set()
             return
 
         cart_text = fetch_cart_description(cart_items_data)
 
-        await call.message.answer(
+        await call.message.edit_text(
             cart_text, reply_markup=create_cart_keyboard(cart_items_data))
+
         await UserState.handle_cart.set()
 
 
