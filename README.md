@@ -33,13 +33,41 @@ pip install -r requirements.txt
 python bot.py
 ```
 
-## Полезные команды heroku
-heroku container:push --app floating-hamlet-23367 worker
-heroku container:release --app floating-hamlet-23367 worker
-heroku logs --tail --app floating-hamlet-23367
-
+## Стремительный деплой на heroku с использованием Docker
+Предварительно должен быть установлен и работать Docker.  
+Предварительно должен быть установлен Heroku, а так же мы должны быть залогинены в нем.
+* клонируем репозиторий
+```
+git clone git@github.com:itcosplay/sale_fish_bot.git
+```
+* переходим в папку с репозиторием и создаем приложение heroku. Запоминаем имя приложения, которое выдаст нам heroku
+```
+heroku create
+```
+* устанавливаем переменные окружения.
+```
+heroku config:set YOUR_ENV_VAR=VALUE
+```
+* логинимся в heroku container
+```
+heroku container:login
+```
+* создаем и пушим образ в heroku register
+```
+heroku container:push --app <your-app-name-from-heroku> worker
+```
+* создаем релиз (запускаем приложение на heroku)
+```
+heroku container:release --app <your-app-name-from-heroku> worker
+```
+* делаем так, чтобы бот не падал через минуту
+```
 heroku ps:scale worker=1
-
+```
+* при желании, можно насладиться логами
+```
+heroku logs --tail --app floating-hamlet-23367
+```
 
 
 ## Цели проекта
