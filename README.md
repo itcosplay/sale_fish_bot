@@ -33,5 +33,14 @@ pip install -r requirements.txt
 python bot.py
 ```
 
+## Полезные команды heroku
+heroku container:push --app floating-hamlet-23367 worker
+heroku container:release --app floating-hamlet-23367 worker
+heroku logs --tail --app floating-hamlet-23367
+
+heroku ps:scale worker=1
+
+
+
 ## Цели проекта
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org).
