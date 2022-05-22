@@ -1,3 +1,8 @@
 build:
   docker:
     worker: Dockerfile
+run:
+  worker: python bot.py
+release:
+  image: worker
+  
