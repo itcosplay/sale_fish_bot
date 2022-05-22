@@ -53,6 +53,42 @@ docker build -t sale-fish-bot .
 docker run --rm sale-fish-bot
 ```
 
+## Стремительный деплой на heroku с использованием Docker и файла heroku.yml
+Предварительно должен быть установлен Heroku, а так же мы должны быть залогинены в нем,
+а так же необходимо сооздать приложение на heroku.
+
+* клонируем репозиторий
+```
+git clone git@github.com:itcosplay/sale_fish_bot.git
+```
+
+* привязываем heroku remote 
+```
+heroku git:remote -a <your-app-name>
+```
+
+* устанавливаем переменные окружения.
+Так же можно добавить через web интерфейс heroku
+```
+heroku config:set YOUR_ENV_VAR=VALUE
+```
+
+* создаем контейнер
+```
+heroku stack:set container
+```
+
+* пушим приложение
+```
+git push heroku main              
+```
+
+* делаем так, чтобы бот не падал через минуту
+```
+heroku ps:scale worker=1
+```
+
+
 ## Стремительный деплой на heroku с использованием Docker
 Предварительно должен быть установлен и работать Docker.  
 Предварительно должен быть установлен Heroku, а так же мы должны быть залогинены в нем.
