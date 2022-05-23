@@ -41,16 +41,16 @@ python bot.py
 git clone git@github.com:itcosplay/sale_fish_bot.git
 ```
 
-* добавляем файл .env в корень проекта со необходимыми переменными
-
 * собираем контейнер
 ```
 docker build -t sale-fish-bot .
 ```
 
-* запускаем контейнер
+* проверяем, что файл .env со всеми переменными в наличии
+
+* запускаем контейнер передав необходимые переменные окружения:
 ```
-docker run --rm sale-fish-bot
+docker run --rm --env-file .env sale-fish-bot
 ```
 
 ## Стремительный деплой на heroku с использованием Docker и файла heroku.yml
